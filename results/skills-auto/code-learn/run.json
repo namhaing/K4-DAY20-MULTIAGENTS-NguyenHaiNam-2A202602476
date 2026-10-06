@@ -1,0 +1,74 @@
+{
+  "task": "code-learn",
+  "condition": "skills-auto",
+  "role": "learn",
+  "error": null,
+  "timestamp": "2026-10-06T16:03:18.100831+00:00",
+  "skills_sha256": "438f509f9f08735c4ac8a9298045c9e4b579c240f55d18cbf21bc4308cf652f6",
+  "seconds": 99.2,
+  "tokens": {
+    "input": 116018,
+    "output": 4885,
+    "total": 120903
+  },
+  "tool_calls": 27,
+  "subagent_calls": 0,
+  "skills_read": 1,
+  "skills_modified": false,
+  "final_message": "- Fixed price parsing for comma-separated and accounting-style values, and applied explicit half-up discount rounding.\n- Corrected low-stock filtering and sorting, and added CSV name escaping.\n- Added regression tests and documented the fixes in the changelog.\n- Test suite passes: `10 passed`.\n\nFiles changed: `workspace/inventory/pricing.py`, `workspace/inventory/export.py`, `workspace/inventory/report.py`, `workspace/tests/test_regressions.py`, `workspace/CHANGELOG.md`.",
+  "score": 1.0,
+  "passed": 10,
+  "total": 10,
+  "checks": [
+    {
+      "name": "visible_suite_passes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "tests_not_modified",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "parse_price_all_formats",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "other_caller_fixed",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "discount_rounds_half_up",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "low_stock_follows_docstring",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "csv_quoting_follows_docstring",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "rule_type_hints",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "rule_regression_tests",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "rule_changelog",
+      "passed": true,
+      "detail": ""
+    }
+  ]
+}
