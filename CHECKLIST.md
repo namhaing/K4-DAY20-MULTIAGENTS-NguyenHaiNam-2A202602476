@@ -3,19 +3,19 @@
 > Checklist cá nhân, tổng hợp từ `README.md`, `GUIDE.md`, `RUBRIC.md`, `REPORT_TEMPLATE.md` và `guides/pseudocode/`.
 > Đánh dấu `[x]` khi xong. Làm **đúng thứ tự**: thứ tự các bước là một phần của điểm (giả thuyết trước `freeze`, `freeze` trước khi chạy tác vụ đánh giá).
 
-## Trạng thái hiện tại (cập nhật 2026-10-06)
+## Trạng thái hiện tại (cập nhật 2026-10-06, sau thử thách 6e)
 
 | Phần | Trạng thái |
 |---|---|
-| 0. Cài đặt, làm quen | Xong, trừ việc sửa CRLF (xem 0.1) |
-| 1. Harness (30 điểm tự động) | Xong: 29/29 test đạt, đã commit `0c0234b`; bản sửa `final_message` chưa commit |
-| 2. Tác vụ học + phân loại lỗi | ⚠️ Đã chạy 6 lần nhưng **kết quả không hợp lệ do lỗi CRLF**, phải chạy lại; chưa phân loại lỗi |
-| 3. Curator | Mới cài xong `curate_skills`; chưa chạy curator, chưa có skill |
-| 4. Giả thuyết, freeze, chạy chính thức | Chưa làm |
-| 5. Báo cáo | Mới điền mục 1 và mục 3 |
-| 6. Bonus (+5) | Chưa làm |
+| 0. Cài đặt, làm quen | Xong. Lỗi CRLF được xử lý bằng bản xuất `tasks/` LF gắn chỉ đọc vào Docker (không sửa kho) |
+| 1. Harness (30 điểm tự động) | Xong: 29/29 test |
+| 2. Tác vụ học + phân loại lỗi | Xong: 9/9 check thất bại thuộc nhóm E, kỹ thuật 18/18 |
+| 3. Curator | Xong: 3 lần chạy (đúng giới hạn), 3 skill cuối, Phần 3.4 đạt 27/27 |
+| 4. Giả thuyết, freeze, chạy chính thức | Xong: `hypotheses` `1feb37c` → tag `freeze` `aca12f0`; `verify_freeze.py` OK (clone sạch trên Linux) |
+| 5. Báo cáo | Xong: đủ mục 1–10 + phụ lục |
+| 6. Bonus (+5) | Xong: hướng 6e, 18 lần lặp, `extras/noise_summary.py`, `report/noise.md` |
 
-**Việc chặn tiếp theo:** sửa CRLF ở mục 0.1 (bạn tự chạy lệnh), sau đó chạy lại toàn bộ Phần 2.
+Còn lại cho bạn: `git push` (kèm tag `freeze`) khi muốn nộp.
 
 ---
 
@@ -26,7 +26,7 @@
 - [x] KHÔNG sửa tay nội dung `skills/auto/` (chỉ được xóa skill hoặc chạy lại curator, tối đa 2 lần, có ghi lý do).
 - [x] KHÔNG mở `tasks/*-eval/check.py`, không chạy tác vụ `eval` trước khi có tag `freeze`.
 - [x] KHÔNG commit `.env`, không để khóa API lọt vào `results/`, `trace.md`, báo cáo.
-- [ ] Số liệu trong báo cáo phải khớp `results/` (giảng viên chạy lại `lab.compare`). *(kiểm tra lại khi viết báo cáo)*
+- [x] Số liệu trong báo cáo phải khớp `results/` (giảng viên chạy lại `lab.compare`).
 
 ---
 
@@ -50,7 +50,8 @@ Shell của tác tử dùng `/bin/sh` và `PATH` dạng Linux (`:`), nên trên 
 - [x] Môi trường host (cho các lệnh cần `git`, vì image `python:3.12-slim` không có git):
   `python -m venv .venv; .\.venv\Scripts\Activate.ps1; pip install -e .`
   → dùng host cho `git commit/tag`, `python scripts/verify_freeze.py`, `python scripts/check_breakdown.py`.
-- [ ] ⚠️ **Sửa CRLF (CHƯA LÀM, đang chặn Phần 2).** Do `core.autocrlf=true`, cả 34 tệp trong `tasks/` đang ở dạng CRLF. Check `tests_not_modified` của `code-learn` vì thế luôn thất bại (hash `efb5e7…` so với bản gốc `79e05f…`), và dữ liệu `.log`/`.csv` có thêm ``. Chạy trong PowerShell ở gốc repo:
+- [x] ⚠️ **Sửa CRLF – đã xử lý không cần sửa kho:** mọi lần chạy dùng bản xuất `git -c core.autocrlf=false archive HEAD tasks` gắn `-v <bản xuất>:/lab/tasks:ro`. Cách sửa trong kho dưới đây vẫn dùng được nếu muốn: Do `core.autocrlf=true`, cả 34 tệp trong `tasks/` đang ở dạng CRLF. Check `tests_not_modified` của `code-learn` vì thế luôn thất bại (hash `efb5e7…` so với bản gốc `79e05f…`), và dữ liệu `.log`/`.csv` có thêm `
+`. Chạy trong PowerShell ở gốc repo:
   ```powershell
   git config --local core.autocrlf input
   Remove-Item -Recurse -Force tasks
@@ -134,7 +135,7 @@ Làm theo thứ tự 1.1 → 1.2 → 1.3 (`build_agent` gọi `get_subagents`).
 
 ### 1.4. Chạy thật lần đầu (tính vào kết quả baseline, không chạy lại)
 
-> ⚠️ Đã chạy (5/8, 33k token) nhưng chạy khi `tasks/` còn CRLF → phải chạy lại sau khi sửa 0.1.
+> Lần chạy CRLF bị loại (lưu ở `results-crlf/`); đã chạy lại với dữ liệu LF: 5/8, 39,6k token.
 
 - [x] `python -m lab.runner --condition baseline --tasks data-learn`
 - [x] Có `results/baseline/data-learn/run.json` và `trace.md`; `tokens.total > 0`; `checks` có danh sách, check thất bại có `detail`.
@@ -147,31 +148,31 @@ Làm theo thứ tự 1.1 → 1.2 → 1.3 (`build_agent` gọi `get_subagents`).
 
 ### 2.1. Chạy (CHỈ tác vụ học)
 
-> ⚠️ Cả 6 lần đã chạy, không lỗi API, nhưng **không hợp lệ do CRLF** → chạy lại sau khi sửa 0.1. Số liệu tham khảo (lần chạy CRLF): baseline 6/10, 5/8, 6/9 (72.6k, 33.0k, 18.2k token); subagents 6/10, 5/8, 6/9 (171.0k, 106.6k, 62.3k token; `subagent_calls` = 3, 3, 1).
+> Đã chạy lại với dữ liệu LF: baseline 7/10, 5/8, 6/9; subagents 7/10, 5/8, 6/9 (token TB 43,0k so với 101,8k).
 
 - [x] `python -m lab.runner --condition baseline --tasks code-learn logs-learn`
 - [x] `python -m lab.runner --condition subagents --tasks learn`
-- [ ] Kiểm tra `results/baseline/` và `results/subagents/` đủ 3 tác vụ học, không có `error` do hạ tầng (nếu có: chạy lại đúng tác vụ đó, ghi chú trong báo cáo).
-- [ ] Ghi lại từng lệnh đã chạy vào **Phụ lục** báo cáo (rubric 6.4 – tái lập).
+- [x] Kiểm tra `results/baseline/` và `results/subagents/` đủ 3 tác vụ học, không có `error` do hạ tầng (nếu có: chạy lại đúng tác vụ đó, ghi chú trong báo cáo).
+- [x] Ghi lại từng lệnh đã chạy vào **Phụ lục** báo cáo (rubric 6.4 – tái lập).
 
 ### 2.2. Phân loại lỗi → báo cáo mục 4 (rubric 2.2: 10 điểm)
 
-- [ ] Mở `checks` trong `run.json` + `trace.md` của `code-learn`, `data-learn`, `logs-learn` (điều kiện `baseline`).
-- [ ] Mỗi check thất bại = 1 dòng bảng: tác vụ | tên check | nhóm A–G | trích `detail` hoặc vết.
+- [x] Mở `checks` trong `run.json` + `trace.md` của `code-learn`, `data-learn`, `logs-learn` (điều kiện `baseline`).
+- [x] Mỗi check thất bại = 1 dòng bảng: tác vụ | tên check | nhóm A–G | trích `detail` hoặc vết.
   - A bỏ qua đặc tả · B không kiểm chứng · C vá triệu chứng · D bỏ sót dữ liệu bẩn · **E vi phạm quy ước (`rule_`, `detail` bắt đầu `RULE:`)** · F báo cáo sai sự thật · G khác.
-- [ ] Phân loại **≥ 4** check thất bại (mức 9–10 điểm).
-- [ ] Chạy `python scripts/check_breakdown.py` (host) → lấy số check kỹ thuật đạt/tổng làm **bằng chứng phủ định** cho A–D nếu hầu hết lỗi là E.
-- [ ] Viết nhận xét: nhóm lỗi chiếm đa số, nguyên nhân chung, skill có phòng ngừa được không.
-- [ ] Không dùng lỗi hạ tầng (API, timeout) làm bằng chứng.
+- [x] Phân loại **≥ 4** check thất bại (mức 9–10 điểm).
+- [x] Chạy `python scripts/check_breakdown.py` (host) → lấy số check kỹ thuật đạt/tổng làm **bằng chứng phủ định** cho A–D nếu hầu hết lỗi là E.
+- [x] Viết nhận xét: nhóm lỗi chiếm đa số, nguyên nhân chung, skill có phòng ngừa được không.
+- [x] Không dùng lỗi hạ tầng (API, timeout) làm bằng chứng.
 
 ### 2.3. Quan sát `subagents` → báo cáo mục 5 (rubric 3.3: 4 điểm)
 
-- [ ] Liệt kê subagent đã định nghĩa (tên, vai trò, lý do thiết kế).
-- [ ] `subagent_calls` từng tác vụ; subagent nào được gọi, bao nhiêu lần (xem call `task` trong `trace.md`, trường `subagent_type`).
-- [ ] Nếu có giao việc: thông điệp giao việc có đủ quy tắc + đường dẫn không? Báo cáo của subagent có được kiểm tra lại không?
-- [ ] Nếu `subagent_calls = 0`: ghi nhận là kết quả hợp lệ và giải thích vì sao.
-- [ ] So sánh `tokens.total` và `seconds` với `baseline` cùng tác vụ.
-- [ ] Commit: `git add -A; git commit -m "Learning runs: baseline and subagents"`
+- [x] Liệt kê subagent đã định nghĩa (tên, vai trò, lý do thiết kế).
+- [x] `subagent_calls` từng tác vụ; subagent nào được gọi, bao nhiêu lần (xem call `task` trong `trace.md`, trường `subagent_type`).
+- [x] Nếu có giao việc: thông điệp giao việc có đủ quy tắc + đường dẫn không? Báo cáo của subagent có được kiểm tra lại không?
+- [ ] (không xảy ra: 2–3 lần mỗi tác vụ) Nếu `subagent_calls = 0`: ghi nhận là kết quả hợp lệ và giải thích vì sao.
+- [x] So sánh `tokens.total` và `seconds` với `baseline` cùng tác vụ.
+- [x] Commit: `git add -A; git commit -m "Learning runs: baseline and subagents"`
 
 ---
 
@@ -192,27 +193,27 @@ Làm theo thứ tự 1.1 → 1.2 → 1.3 (`build_agent` gọi `get_subagents`).
 
 ### 3.2. Chạy curator
 
-- [ ] `python -m lab.curator` → in `wrote .../skills/auto/<name>/SKILL.md`.
-- [ ] Nếu báo "không có check thất bại" hoặc không ghi skill nào → kiểm tra lại `results/baseline/`, đọc lý do `validate_skill` từ chối.
+- [x] `python -m lab.curator` → in `wrote .../skills/auto/<name>/SKILL.md`.
+- [ ] (không xảy ra) Nếu báo "không có check thất bại" hoặc không ghi skill nào → kiểm tra lại `results/baseline/`, đọc lý do `validate_skill` từ chối.
 
 ### 3.3. Đánh giá từng skill → báo cáo mục 6 (rubric 4.2: 5 điểm)
 
 Với **mỗi** skill trong `skills/auto/`, điền một dòng bảng:
 
-- [ ] Tổng quát hay chỉ lặp lại chi tiết tác vụ học (tên tệp, hàm, cột, con số)?
-- [ ] Đúng hay sai: so với `detail` của bot đánh giá; có chỉ dẫn nào gây hại không?
-- [ ] Độ dài (số dòng), `description` có bắt đầu "Use when ..." và đủ rộng không?
-- [ ] Không rò rỉ: không có tên/con số của tác vụ đánh giá.
-- [ ] Nếu xóa skill hoặc chạy lại curator (≤ 2 lần): ghi số lần chạy, skill bị xóa, **lý do**. Không sửa tay nội dung.
+- [x] Tổng quát hay chỉ lặp lại chi tiết tác vụ học (tên tệp, hàm, cột, con số)?
+- [x] Đúng hay sai: so với `detail` của bot đánh giá; có chỉ dẫn nào gây hại không?
+- [x] Độ dài (số dòng), `description` có bắt đầu "Use when ..." và đủ rộng không?
+- [x] Không rò rỉ: không có tên/con số của tác vụ đánh giá.
+- [x] Nếu xóa skill hoặc chạy lại curator (≤ 2 lần): ghi số lần chạy, skill bị xóa, **lý do**. Không sửa tay nội dung.
 
 ### 3.4. Kiểm tra skill có được dùng (chỉ tác vụ học)
 
-- [ ] `python -m lab.runner --condition skills-auto --tasks learn`
-- [ ] Xem `skills_read` từng tác vụ (0 = không đọc skill nào); đối chiếu `trace.md` xem có làm theo từng quy tắc không; so với `baseline`.
-- [ ] Nếu `skills_read = 0` ở mọi tác vụ → cân nhắc chạy lại curator (vẫn trong giới hạn 2 lần).
-- [ ] **Sao lưu kết quả dev** (để ước lượng nhiễu ở mục 8.6): trong container `mv results/skills-auto results/skills-auto-dev`
+- [x] `python -m lab.runner --condition skills-auto --tasks learn`
+- [x] Xem `skills_read` từng tác vụ (0 = không đọc skill nào); đối chiếu `trace.md` xem có làm theo từng quy tắc không; so với `baseline`.
+- [ ] (không cần: `skills_read`=1 ở mọi tác vụ) Nếu `skills_read = 0` ở mọi tác vụ → cân nhắc chạy lại curator (vẫn trong giới hạn 2 lần).
+- [x] **Sao lưu kết quả dev** (để ước lượng nhiễu ở mục 8.6): trong container `mv results/skills-auto results/skills-auto-dev`
   (`lab.compare` và `verify_freeze` bỏ qua thư mục đổi tên này).
-- [ ] Commit: `git add -A; git commit -m "Curator skills and skills-auto dev runs"`
+- [x] Commit: `git add -A; git commit -m "Curator skills and skills-auto dev runs"`
 
 ---
 
@@ -220,87 +221,87 @@ Với **mỗi** skill trong `skills/auto/`, điền một dòng bảng:
 
 ### 4.0. Giả thuyết (TRƯỚC khi thấy bất kỳ điểm nào của tác vụ đánh giá)
 
-- [ ] Điền mục 2 `report/REPORT.md`, mỗi dòng phải có nội dung sau dấu `:` (script kiểm tra đúng định dạng `- H1 (...): <nội dung>`):
-  - [ ] H1 (subagents so với baseline): dự đoán + lý do (token ~ nhiều hơn, giao việc thiếu quy tắc...).
-  - [ ] H2 (skills-auto so với baseline): dự đoán + căn cứ (phân loại lỗi mục 4; SkillsBench: skill tự sinh trung bình không có lợi).
-  - [ ] H3 (tác vụ học so với đánh giá): dự đoán về quá khớp (SkillEvolBench), quy ước mới của eval không có trong skill.
-- [ ] Commit (host): `git add -A; git commit -m "hypotheses"` (message phải **bắt đầu** bằng `hypotheses`).
+- [x] Điền mục 2 `report/REPORT.md`, mỗi dòng phải có nội dung sau dấu `:` (script kiểm tra đúng định dạng `- H1 (...): <nội dung>`):
+  - [x] H1 (subagents so với baseline): dự đoán + lý do (token ~ nhiều hơn, giao việc thiếu quy tắc...).
+  - [x] H2 (skills-auto so với baseline): dự đoán + căn cứ (phân loại lỗi mục 4; SkillsBench: skill tự sinh trung bình không có lợi).
+  - [x] H3 (tác vụ học so với đánh giá): dự đoán về quá khớp (SkillEvolBench), quy ước mới của eval không có trong skill.
+- [x] Commit (host): `git add -A; git commit -m "hypotheses"` (message phải **bắt đầu** bằng `hypotheses`).
 
 ### 4.1. Đóng băng
 
-- [ ] Xác nhận `skills/auto/` là bản cuối cùng.
-- [ ] (host) `git add -A; git commit --allow-empty -m "freeze skills"; git tag freeze`
-- [ ] Từ đây **không đụng** `skills/`.
-- [ ] Ghi hash commit của tag vào báo cáo mục 1: `git rev-parse freeze`.
+- [x] Xác nhận `skills/auto/` là bản cuối cùng.
+- [x] (host) `git add -A; git commit --allow-empty -m "freeze skills"; git tag freeze`
+- [x] Từ đây **không đụng** `skills/`.
+- [x] Ghi hash commit của tag vào báo cáo mục 1: `git rev-parse freeze`.
 
 ### 4.2. Chạy chính thức (sau tag)
 
-- [ ] `python -m lab.runner --condition baseline --tasks eval`
-- [ ] `python -m lab.runner --condition subagents --tasks eval`
-- [ ] `python -m lab.runner --condition skills-auto --tasks all`
-- [ ] Mọi run có `error` → chạy lại riêng tác vụ đó, ghi chú trong báo cáo mục 7.
-- [ ] (host) `python scripts/verify_freeze.py` → **`OK`** (checked 6 runs).
-- [ ] Đủ 3 × 6 = 18 thư mục kết quả: `results/{baseline,subagents,skills-auto}/<6 tác vụ>/` (rubric 2.1, 3.2, 4.3).
+- [x] `python -m lab.runner --condition baseline --tasks eval`
+- [x] `python -m lab.runner --condition subagents --tasks eval`
+- [x] `python -m lab.runner --condition skills-auto --tasks all`
+- [x] (không có run nào lỗi; 1 lần bị ngắt đã chạy lại) Mọi run có `error` → chạy lại riêng tác vụ đó, ghi chú trong báo cáo mục 7.
+- [x] (host) `python scripts/verify_freeze.py` → **`OK`** (checked 6 runs).
+- [x] Đủ 3 × 6 = 18 thư mục kết quả: `results/{baseline,subagents,skills-auto}/<6 tác vụ>/` (rubric 2.1, 3.2, 4.3).
 
 ### 4.3. Bảng so sánh
 
-- [ ] Trong container: `python -m lab.compare > report/table.md`
-- [ ] Kiểm tra: 3 cột điều kiện, 6 hàng tác vụ, hàng tổng hợp (điểm TB, token TB, số run có đọc skill).
-- [ ] KHÔNG sửa tay `table.md` (giảng viên chạy lại để đối chiếu).
+- [x] Trong container: `python -m lab.compare > report/table.md`
+- [x] Kiểm tra: 3 cột điều kiện, 6 hàng tác vụ, hàng tổng hợp (điểm TB, token TB, số run có đọc skill).
+- [x] KHÔNG sửa tay `table.md` (giảng viên chạy lại để đối chiếu).
 
 ### 4.4. Thống kê hỗ trợ
 
-- [ ] (host) `python scripts/check_breakdown.py` → lưu output để dán vào mục 7.
-- [ ] Commit: `git add -A; git commit -m "Official runs, comparison table"`
+- [x] (host) `python scripts/check_breakdown.py` → lưu output để dán vào mục 7.
+- [x] Commit: `git add -A; git commit -m "Official runs, comparison table"`
 
 ---
 
 ## Phần 5. Báo cáo `report/REPORT.md` (20 điểm)
 
-- [ ] Xóa các dòng hướng dẫn bắt đầu bằng `>`.
-- [ ] **Mục 1** – thông tin: họ tên, MSSV (2A202602476), mô hình, nhiệt độ, `recursion_limit`, phiên bản deepagents, OS + Docker, số lần chạy đã dùng, commit `freeze`.
-- [ ] **Mục 2** – H1–H3 (đã commit trước `freeze`; không sửa nội dung giả thuyết sau đó, chỉ đánh giá đúng/sai ở mục 8).
-- [ ] **Mục 3** – 3 câu trả lời Phần 0.3.
-- [ ] **Mục 4** – bảng phân loại lỗi ≥ 4 dòng + nhận xét + bằng chứng phủ định.
-- [ ] **Mục 5** – subagents.
-- [ ] **Mục 6** – số lần chạy curator, bảng đánh giá từng skill.
-- [ ] **Mục 7** – dán `report/table.md` + output `check_breakdown.py`; nêu run có `error`/`skills_modified=true` và cách xử lý.
-- [ ] **Mục 8** – trả lời đủ 6 câu, mỗi câu có số liệu (rubric 6.2: 8 điểm):
-  - [ ] 8.1 Cải thiện tác vụ học vs đánh giá; dấu hiệu quá khớp nếu chỉ cải thiện tác vụ học.
-  - [ ] 8.2 Tách check kỹ thuật vs check quy ước `rule_`; quy ước **mới** ở eval có được skill giúp không, vì sao.
-  - [ ] 8.3 Một check skill giúp đạt + một check skill không giúp, dẫn chứng `skills_read` và `trace.md`.
-  - [ ] 8.4 Chi phí: token TB mỗi điều kiện, điểm/token, đa tác tử có đáng không.
-  - [ ] 8.5 Rò rỉ/quá khớp trong skill và cách phòng tránh.
-  - [ ] 8.6 Nhiễu: so `results/skills-auto-dev` (Phần 3.4) với `results/skills-auto` (sau freeze) trên tác vụ học.
-- [ ] **Mục 9** – ≥ 3 hạn chế, mỗi cái nêu ảnh hưởng đến kết luận (3 tác vụ/vai trò, chạy 1 lần, nhiễu, tác vụ do giảng viên thiết kế, 1 mô hình, trace không có bên trong subagent).
-- [ ] **Mục 10** – kết luận ≤ 5 câu, chỉ khẳng định điều số liệu hỗ trợ, 1 đề xuất cải tiến.
-- [ ] **Phụ lục** – danh sách lệnh theo thứ tự; thử thách mở rộng (nếu làm).
-- [ ] Đối chiếu mọi con số trong báo cáo với `run.json` / `table.md` (sai lệch bị trừ 5–10).
+- [x] Xóa các dòng hướng dẫn bắt đầu bằng `>`.
+- [x] **Mục 1** – thông tin: họ tên, MSSV (2A202602476), mô hình, nhiệt độ, `recursion_limit`, phiên bản deepagents, OS + Docker, số lần chạy đã dùng, commit `freeze`.
+- [x] **Mục 2** – H1–H3 (đã commit trước `freeze`; không sửa nội dung giả thuyết sau đó, chỉ đánh giá đúng/sai ở mục 8).
+- [x] **Mục 3** – 3 câu trả lời Phần 0.3.
+- [x] **Mục 4** – bảng phân loại lỗi ≥ 4 dòng + nhận xét + bằng chứng phủ định.
+- [x] **Mục 5** – subagents.
+- [x] **Mục 6** – số lần chạy curator, bảng đánh giá từng skill.
+- [x] **Mục 7** – dán `report/table.md` + output `check_breakdown.py`; nêu run có `error`/`skills_modified=true` và cách xử lý.
+- [x] **Mục 8** – trả lời đủ 6 câu, mỗi câu có số liệu (rubric 6.2: 8 điểm):
+  - [x] 8.1 Cải thiện tác vụ học vs đánh giá; dấu hiệu quá khớp nếu chỉ cải thiện tác vụ học.
+  - [x] 8.2 Tách check kỹ thuật vs check quy ước `rule_`; quy ước **mới** ở eval có được skill giúp không, vì sao.
+  - [x] 8.3 Một check skill giúp đạt + một check skill không giúp, dẫn chứng `skills_read` và `trace.md`.
+  - [x] 8.4 Chi phí: token TB mỗi điều kiện, điểm/token, đa tác tử có đáng không.
+  - [x] 8.5 Rò rỉ/quá khớp trong skill và cách phòng tránh.
+  - [x] 8.6 Nhiễu: so `results/skills-auto-dev` (Phần 3.4) với `results/skills-auto` (sau freeze) trên tác vụ học.
+- [x] **Mục 9** – ≥ 3 hạn chế, mỗi cái nêu ảnh hưởng đến kết luận (3 tác vụ/vai trò, chạy 1 lần, nhiễu, tác vụ do giảng viên thiết kế, 1 mô hình, trace không có bên trong subagent).
+- [x] **Mục 10** – kết luận ≤ 5 câu, chỉ khẳng định điều số liệu hỗ trợ, 1 đề xuất cải tiến.
+- [x] **Phụ lục** – danh sách lệnh theo thứ tự; thử thách mở rộng (nếu làm).
+- [x] Đối chiếu mọi con số trong báo cáo với `run.json` / `table.md` (sai lệch bị trừ 5–10).
 
 ---
 
 ## Phần 6. Thử thách mở rộng (tùy chọn, +5) – chọn MỘT
 
-> Chưa làm. Chỉ được tính điểm khi Phần 0–5 đã hoàn thành.
+> Đã làm hướng **6e**: 2 lần lặp × 3 điều kiện × 3 tác vụ đánh giá (`results-rep1/`, `results-rep2/`), tổng hợp ở `report/noise.md`, phân tích ở phụ lục báo cáo.
 
-- [ ] Chỉ làm khi Phần 0–5 đã xong.
-- [ ] Gợi ý dễ nhất: **6e – lặp đo nhiễu**: chạy lại mỗi điều kiện trên eval ≥ 2 lần với `--results results-rep1`, `--results results-rep2`; báo cáo trung bình và khoảng dao động.
-- [ ] Hoặc **6d – subagent có skill**: thêm `"skills": ["/skills/"]` cho subagent (thư mục kết quả riêng, không phá kết quả chính).
-- [ ] Ghi đủ 5 tiêu chí: thiết kế tách biệt, số liệu so sánh, phân tích vết, hạn chế + bước tiếp, mã tái lập được.
+- [x] Chỉ làm khi Phần 0–5 đã xong.
+- [x] Gợi ý dễ nhất: **6e – lặp đo nhiễu**: chạy lại mỗi điều kiện trên eval ≥ 2 lần với `--results results-rep1`, `--results results-rep2`; báo cáo trung bình và khoảng dao động.
+- [ ] (không chọn) Hoặc **6d – subagent có skill**: thêm `"skills": ["/skills/"]` cho subagent (thư mục kết quả riêng, không phá kết quả chính).
+- [x] Ghi đủ 5 tiêu chí: thiết kế tách biệt, số liệu so sánh, phân tích vết, hạn chế + bước tiếp, mã tái lập được.
 
 ---
 
 ## Kiểm tra cuối trước khi nộp
 
-- [ ] `pytest` (trong container) → toàn bộ đạt.
-- [ ] `python scripts/verify_freeze.py` (host) → `OK`.
-- [ ] `python -m lab.compare` khớp với `report/table.md`.
-- [ ] `git diff freeze -- skills/` rỗng.
-- [ ] `git status` sạch; `.env` không có trong lịch sử: `git log --all -- .env` rỗng.
-- [ ] Tìm khóa API bị lộ: `git grep -n -i "api_key\|sk-" -- results report` không ra khóa thật.
+- [x] `pytest` (trong container) → toàn bộ đạt.
+- [x] `python scripts/verify_freeze.py` (host) → `OK`.
+- [x] `python -m lab.compare` khớp với `report/table.md`.
+- [x] `git diff freeze -- skills/` rỗng.
+- [x] `git status` sạch; `.env` không có trong lịch sử: `git log --all -- .env` rỗng.
+- [x] Tìm khóa API bị lộ: `git grep -n -i "api_key\|sk-" -- results report` không ra khóa thật.
 - [x] `git diff d982034 --stat -- tests tasks scripts src/lab/model.py src/lab/tasks.py src/lab/grading.py src/lab/testing.py src/lab/compare.py` rỗng (so với `d982034` – commit gốc mới nhất của giảng viên; đã kiểm tra: rỗng).
-- [ ] Nộp đủ: 4 file `src/lab/{agent,subagents,runner,curator}.py`, `skills/auto/`, `results/` (run.json + trace.md), `report/REPORT.md`, `report/table.md`.
-- [ ] `git push` (kèm tag): `git push; git push origin freeze`
+- [x] Nộp đủ: 4 file `src/lab/{agent,subagents,runner,curator}.py`, `skills/auto/`, `results/` (run.json + trace.md), `report/REPORT.md`, `report/table.md`.
+- [ ] (BẠN TỰ LÀM) `git push` (kèm tag): `git push; git push origin freeze`
 
 ---
 
