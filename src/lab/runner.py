@@ -94,7 +94,7 @@ def run_task(task_id: str, condition: str, results_dir="results", model=None, re
                 config={"callbacks": [usage], "recursion_limit": recursion_limit},
             )
             messages = result["messages"]
-            final = str(messages[-1].content) if messages else ""
+            final = messages[-1].text if messages else ""   # chỉ phần văn bản (Responses API trả về danh sách block)
         except Exception as exc:  # noqa: BLE001 - lỗi API, hết recursion_limit... được ghi lại, không làm dừng chương trình
             record["error"] = f"{type(exc).__name__}: {exc}"
             messages, final = [], ""

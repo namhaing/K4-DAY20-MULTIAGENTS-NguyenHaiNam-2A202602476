@@ -3,16 +3,30 @@
 > Checklist cá nhân, tổng hợp từ `README.md`, `GUIDE.md`, `RUBRIC.md`, `REPORT_TEMPLATE.md` và `guides/pseudocode/`.
 > Đánh dấu `[x]` khi xong. Làm **đúng thứ tự**: thứ tự các bước là một phần của điểm (giả thuyết trước `freeze`, `freeze` trước khi chạy tác vụ đánh giá).
 
+## Trạng thái hiện tại (cập nhật 2026-10-06)
+
+| Phần | Trạng thái |
+|---|---|
+| 0. Cài đặt, làm quen | Xong, trừ việc sửa CRLF (xem 0.1) |
+| 1. Harness (30 điểm tự động) | Xong: 29/29 test đạt, đã commit `0c0234b`; bản sửa `final_message` chưa commit |
+| 2. Tác vụ học + phân loại lỗi | ⚠️ Đã chạy 6 lần nhưng **kết quả không hợp lệ do lỗi CRLF**, phải chạy lại; chưa phân loại lỗi |
+| 3. Curator | Mới cài xong `curate_skills`; chưa chạy curator, chưa có skill |
+| 4. Giả thuyết, freeze, chạy chính thức | Chưa làm |
+| 5. Báo cáo | Mới điền mục 1 và mục 3 |
+| 6. Bonus (+5) | Chưa làm |
+
+**Việc chặn tiếp theo:** sửa CRLF ở mục 0.1 (bạn tự chạy lệnh), sau đó chạy lại toàn bộ Phần 2.
+
 ---
 
 ## Luật vàng (vi phạm = trừ 10 điểm mỗi lỗi)
 
-- [ ] KHÔNG sửa `tests/`, `tasks/`, `scripts/`, `model.py`, `tasks.py`, `grading.py`, `testing.py`, `compare.py`.
-- [ ] KHÔNG sửa các phần "CÓ SẴN" trong file sinh viên: hằng số `PATHS_NOTE`, `BASE_PROMPT`, `SKILLS_NOTE`, `SUBAGENTS_NOTE` (agent.py); `render_trace`, `main`, `CONDITIONS` (runner.py); `validate_skill`, `parse_skill_blocks` (curator.py). Chỉ cài các hàm `TODO`.
-- [ ] KHÔNG sửa tay nội dung `skills/auto/` (chỉ được xóa skill hoặc chạy lại curator, tối đa 2 lần, có ghi lý do).
-- [ ] KHÔNG mở `tasks/*-eval/check.py`, không chạy tác vụ `eval` trước khi có tag `freeze`.
-- [ ] KHÔNG commit `.env`, không để khóa API lọt vào `results/`, `trace.md`, báo cáo.
-- [ ] Số liệu trong báo cáo phải khớp `results/` (giảng viên chạy lại `lab.compare`).
+- [x] KHÔNG sửa `tests/`, `tasks/`, `scripts/`, `model.py`, `tasks.py`, `grading.py`, `testing.py`, `compare.py`.
+- [x] KHÔNG sửa các phần "CÓ SẴN" trong file sinh viên: hằng số `PATHS_NOTE`, `BASE_PROMPT`, `SKILLS_NOTE`, `SUBAGENTS_NOTE` (agent.py); `render_trace`, `main`, `CONDITIONS` (runner.py); `validate_skill`, `parse_skill_blocks` (curator.py). Chỉ cài các hàm `TODO`.
+- [x] KHÔNG sửa tay nội dung `skills/auto/` (chỉ được xóa skill hoặc chạy lại curator, tối đa 2 lần, có ghi lý do).
+- [x] KHÔNG mở `tasks/*-eval/check.py`, không chạy tác vụ `eval` trước khi có tag `freeze`.
+- [x] KHÔNG commit `.env`, không để khóa API lọt vào `results/`, `trace.md`, báo cáo.
+- [ ] Số liệu trong báo cáo phải khớp `results/` (giảng viên chạy lại `lab.compare`). *(kiểm tra lại khi viết báo cáo)*
 
 ---
 
@@ -22,12 +36,12 @@
 
 Shell của tác tử dùng `/bin/sh` và `PATH` dạng Linux (`:`), nên trên Windows **phải chạy trong Docker** (hoặc cài WSL Ubuntu). Máy hiện có Docker 28.5, WSL chỉ có `docker-desktop` → dùng Docker.
 
-- [ ] Tạo `.env` từ mẫu: `Copy-Item .env.example .env`
-- [ ] Điền `.env` (chọn **một** cách, không để dấu nháy quanh giá trị vì `--env-file` của Docker không bỏ nháy):
+- [x] Tạo `.env` từ mẫu: `Copy-Item .env.example .env`
+- [x] Điền `.env` (chọn **một** cách, không để dấu nháy quanh giá trị vì `--env-file` của Docker không bỏ nháy):
   - Cách 1: `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_KEY`, `AZURE_OPENAI_DEPLOYMENT_MODEL` (giá trị giảng viên cấp).
   - Cách 2: `LAB_MODEL=deepseek:deepseek-chat` + `DEEPSEEK_API_KEY`.
-  - Giữ `LAB_TEMPERATURE=0`.
-- [ ] Kiểm tra `.env` bị ignore: `git status` không được thấy `.env`.
+  - Giữ `LAB_TEMPERATURE=0`. **Thực tế:** đang dùng OpenAI `gpt-6-luna`, mô hình này chỉ nhận `temperature=1` nên `.env` đặt `LAB_TEMPERATURE=1` (đã ghi vào báo cáo mục 1).
+- [x] Kiểm tra `.env` bị ignore: `git status` không được thấy `.env`.
 - [x] Tạo báo cáo: `New-Item -ItemType Directory -Force report; Copy-Item REPORT_TEMPLATE.md report/REPORT.md`
 - [x] Build image (PowerShell, ở gốc repo): `docker build -t lab-deepagents .`
 - [x] Vào container: `docker run --rm -it --env-file .env -v "${PWD}:/lab" lab-deepagents`
@@ -36,22 +50,29 @@ Shell của tác tử dùng `/bin/sh` và `PATH` dạng Linux (`:`), nên trên 
 - [x] Môi trường host (cho các lệnh cần `git`, vì image `python:3.12-slim` không có git):
   `python -m venv .venv; .\.venv\Scripts\Activate.ps1; pip install -e .`
   → dùng host cho `git commit/tag`, `python scripts/verify_freeze.py`, `python scripts/check_breakdown.py`.
-- [ ] Lưu ý CRLF: repo đang `core.autocrlf=true`. Không chạy `git checkout`/clone lại thư mục `skills/` sau khi curator ghi skill (đổi xuống dòng → đổi hash → `verify_freeze` báo skill khác).
+- [ ] ⚠️ **Sửa CRLF (CHƯA LÀM, đang chặn Phần 2).** Do `core.autocrlf=true`, cả 34 tệp trong `tasks/` đang ở dạng CRLF. Check `tests_not_modified` của `code-learn` vì thế luôn thất bại (hash `efb5e7…` so với bản gốc `79e05f…`), và dữ liệu `.log`/`.csv` có thêm ``. Chạy trong PowerShell ở gốc repo:
+  ```powershell
+  git config --local core.autocrlf input
+  Remove-Item -Recurse -Force tasks
+  git checkout -- tasks
+  git ls-files --eol tasks | Select-String "w/crlf"   # phải không in ra dòng nào
+  ```
+  Sau đó cất kết quả cũ (`results` → `results-crlf`) và chạy lại Phần 1.4 + 2.1.
 
 ### 0.2. Kiểm tra môi trường
 
-- [ ] `pytest tests/test_01_provided.py` → **`12 passed`**.
-- [ ] Kiểm tra kết nối mô hình (tốn rất ít token):
+- [x] `pytest tests/test_01_provided.py` → **`12 passed`** (đã chạy cả bộ: 29 passed).
+- [x] Kiểm tra kết nối mô hình (tốn rất ít token):
   `python -c "from lab.model import make_model; print(make_model().invoke('Reply with OK').content)"` → in `OK`.
-- [ ] Ghi lại vào báo cáo mục 1: tên mô hình, `LAB_TEMPERATURE`, `recursion_limit` (mặc định 60), `pip show deepagents` (0.7.21), "chạy trong Docker python:3.12-slim".
+- [x] Ghi lại vào báo cáo mục 1: tên mô hình, `LAB_TEMPERATURE`, `recursion_limit` (mặc định 60), `pip show deepagents` (0.7.21), "chạy trong Docker python:3.12-slim".
 
 ### 0.3. Làm quen Deep Agents (không tốn token)
 
-- [ ] `python scripts/tour.py`
-- [ ] Trả lời vào **mục 3** của `report/REPORT.md` (rubric 6.4 bắt buộc có):
-  - [ ] Câu 1: Danh sách công cụ mặc định (`ls`, `read_file`, `write_file`, `edit_file`, `delete`, `glob`, `grep`, `execute`, `task`, ...). Công cụ chạy lệnh: `execute`.
-  - [ ] Câu 2: Mô tả của `task` nói gì về subagent `general-purpose`; subagent thấy ngữ cảnh nào (chỉ prompt được giao).
-  - [ ] Câu 3: Trích nguyên văn 1 câu hướng dẫn hành vi trong mô tả `task` và 1 câu trong mô tả `execute`.
+- [x] `python scripts/tour.py`
+- [x] Trả lời vào **mục 3** của `report/REPORT.md` (rubric 6.4 bắt buộc có):
+  - [x] Câu 1: Danh sách công cụ mặc định (`ls`, `read_file`, `write_file`, `edit_file`, `delete`, `glob`, `grep`, `execute`, `task`, ...). Công cụ chạy lệnh: `execute`.
+  - [x] Câu 2: Mô tả của `task` nói gì về subagent `general-purpose`; subagent thấy ngữ cảnh nào (chỉ prompt được giao).
+  - [x] Câu 3: Trích nguyên văn 1 câu hướng dẫn hành vi trong mô tả `task` và 1 câu trong mô tả `execute`.
 
 ---
 
@@ -61,62 +82,64 @@ Làm theo thứ tự 1.1 → 1.2 → 1.3 (`build_agent` gọi `get_subagents`).
 
 ### 1.1. `src/lab/subagents.py` → `get_subagents()` (đọc `guides/pseudocode/02_subagents.md`)
 
-- [ ] Trả về list **≥ 2** dict (khuyến nghị 3), mỗi dict có `name` (duy nhất, chữ thường/gạch ngang), `description`, `system_prompt`.
-- [ ] Gợi ý 3 vai trò:
-  - [ ] `explorer`: đọc README, docstring, mẫu dữ liệu, đề bài; báo cáo sự thật và quy ước; **không sửa** tệp.
-  - [ ] `implementer`: thực hiện thay đổi, chạy test/script, báo cáo tệp đã đổi và kết quả.
-  - [ ] `reviewer`: kiểm tra độc lập kết quả với đề bài + trường hợp biên; **không sửa**.
-- [ ] `description` viết như chỉ dẫn hành động: "Use when ..." (khi nào gọi), không chung chung (rubric 3.1).
-- [ ] `system_prompt` có phạm vi rõ: được làm gì, không được làm gì, báo cáo cuối gồm những gì.
-- [ ] KHÔNG tự viết quy ước đường dẫn trong `system_prompt` (`build_agent` sẽ nối `PATHS_NOTE`).
-- [ ] `pytest tests/test_02_agent.py -k subagents`
+- [x] Trả về list **≥ 2** dict (khuyến nghị 3), mỗi dict có `name` (duy nhất, chữ thường/gạch ngang), `description`, `system_prompt`.
+- [x] Gợi ý 3 vai trò:
+  - [x] `explorer`: đọc README, docstring, mẫu dữ liệu, đề bài; báo cáo sự thật và quy ước; **không sửa** tệp.
+  - [x] `implementer`: thực hiện thay đổi, chạy test/script, báo cáo tệp đã đổi và kết quả.
+  - [x] `reviewer`: kiểm tra độc lập kết quả với đề bài + trường hợp biên; **không sửa**.
+- [x] `description` viết như chỉ dẫn hành động: "Use when ..." (khi nào gọi), không chung chung (rubric 3.1).
+- [x] `system_prompt` có phạm vi rõ: được làm gì, không được làm gì, báo cáo cuối gồm những gì.
+- [x] KHÔNG tự viết quy ước đường dẫn trong `system_prompt` (`build_agent` sẽ nối `PATHS_NOTE`).
+- [x] `pytest tests/test_02_agent.py -k subagents`
 
 ### 1.2. `src/lab/agent.py` (đọc `guides/pseudocode/01_agent.md`)
 
-- [ ] TODO 1 – import: `create_deep_agent`, `LocalShellBackend` (từ `deepagents.backends`), `make_model`, `get_subagents`, `sys`.
-- [ ] TODO 2 – `make_backend(sandbox)`:
-  - [ ] `env = {"PATH": str(Path(sys.executable).parent) + ":/usr/local/bin:/usr/bin:/bin", "HOME": str(sandbox), "PYTHONDONTWRITEBYTECODE": "1"}`
-  - [ ] `LocalShellBackend(root_dir=sandbox, virtual_mode=True, inherit_env=False, env=env, timeout=120)`
-  - [ ] Tuyệt đối không `inherit_env=True` (lộ khóa API); không quên `env` (mất `python`).
-- [ ] TODO 3 – `build_agent(sandbox, mode="single", use_skills=False, model=None)`:
-  - [ ] `mode` ∉ {`single`, `subagents`} → `raise ValueError`.
-  - [ ] `prompt = BASE_PROMPT`; `kwargs = {}`.
-  - [ ] Nếu `subagents`: `kwargs["subagents"] = [{**s, "system_prompt": s["system_prompt"] + " " + PATHS_NOTE} for s in get_subagents()]`; `prompt += SUBAGENTS_NOTE`.
-  - [ ] Nếu `use_skills`: `kwargs["skills"] = ["/skills/"]`; `prompt += SKILLS_NOTE`.
-  - [ ] `return create_deep_agent(model=model or make_model(), system_prompt=prompt, backend=make_backend(sandbox), **kwargs)`
-  - [ ] KHÔNG dùng `permissions=` (gây `NotImplementedError`).
-- [ ] `pytest tests/test_02_agent.py` → **9 passed** (10 điểm).
+- [x] TODO 1 – import: `create_deep_agent`, `LocalShellBackend` (từ `deepagents.backends`), `make_model`, `get_subagents`, `sys`.
+- [x] TODO 2 – `make_backend(sandbox)`:
+  - [x] `env = {"PATH": str(Path(sys.executable).parent) + ":/usr/local/bin:/usr/bin:/bin", "HOME": str(sandbox), "PYTHONDONTWRITEBYTECODE": "1"}`
+  - [x] `LocalShellBackend(root_dir=sandbox, virtual_mode=True, inherit_env=False, env=env, timeout=120)`
+  - [x] Tuyệt đối không `inherit_env=True` (lộ khóa API); không quên `env` (mất `python`).
+- [x] TODO 3 – `build_agent(sandbox, mode="single", use_skills=False, model=None)`:
+  - [x] `mode` ∉ {`single`, `subagents`} → `raise ValueError`.
+  - [x] `prompt = BASE_PROMPT`; `kwargs = {}`.
+  - [x] Nếu `subagents`: `kwargs["subagents"] = [{**s, "system_prompt": s["system_prompt"] + " " + PATHS_NOTE} for s in get_subagents()]`; `prompt += SUBAGENTS_NOTE`.
+  - [x] Nếu `use_skills`: `kwargs["skills"] = ["/skills/"]`; `prompt += SKILLS_NOTE`.
+  - [x] `return create_deep_agent(model=model or make_model(), system_prompt=prompt, backend=make_backend(sandbox), **kwargs)`
+  - [x] KHÔNG dùng `permissions=` (gây `NotImplementedError`).
+- [x] `pytest tests/test_02_agent.py` → **9 passed** (10 điểm).
 
 ### 1.3. `src/lab/runner.py` → `run_task(...)` (đọc `guides/pseudocode/03_runner.md`)
 
-- [ ] Lấy `cfg = CONDITIONS[condition]`, `task = get_task(task_id)`, `skills_dir = ROOT / cfg["skills_dir"]` hoặc `None`.
-- [ ] `out = Path(results_dir) / condition / task_id`; `mkdir(parents=True, exist_ok=True)`.
-- [ ] `sandbox = Path(tempfile.mkdtemp())` – nằm NGOÀI repo.
-- [ ] `record = {"task", "condition", "role": task.role, "error": None, "timestamp": datetime.now(timezone.utc).isoformat()}`.
-- [ ] Trong `try:`
-  - [ ] `prepare_sandbox(task, sandbox, skills_dir)`; `before = hash_dir(sandbox / "skills")`; `record["skills_sha256"] = before`.
-  - [ ] `agent = build_agent(sandbox, mode=cfg["mode"], use_skills=skills_dir is not None, model=model)`.
-  - [ ] `usage = UsageMetadataCallbackHandler()` (từ `langchain_core.callbacks`); `t0 = time.time()`.
-  - [ ] `try: result = agent.invoke({"messages": [{"role": "user", "content": task.instruction}]}, config={"callbacks": [usage], "recursion_limit": recursion_limit})` → `messages = result["messages"]`, `final = messages[-1].content`.
-  - [ ] `except Exception as e:` → `record["error"] = f"{type(e).__name__}: {e}"`, `messages = []`, `final = ""` (không ném lỗi ra ngoài).
-  - [ ] `record["seconds"] = round(time.time() - t0, 1)`.
-  - [ ] `record["tokens"] = {"input", "output", "total"}` = tổng `input_tokens`/`output_tokens`/`total_tokens` trên `usage.usage_metadata.values()`.
-  - [ ] `calls = [tc for m in messages if isinstance(m, AIMessage) for tc in m.tool_calls]`.
-  - [ ] `tool_calls = len(calls)`; `subagent_calls` = số call `name == "task"`.
-  - [ ] `skills_read` = số **tên skill khác nhau** từ các call `read_file` có `"skills/"` trong `args["file_path"]` (tên = phần ngay sau `skills/`, cắt tại `/`; dùng `set`).
-  - [ ] `skills_modified = hash_dir(sandbox / "skills") != before`; `final_message = final`.
-  - [ ] `g = grade(task, sandbox / "workspace")`; `record.update(score, passed, total, checks)` từ `g`.
-  - [ ] Ghi `out / "trace.md"` = `render_trace(messages)` (encoding utf-8).
-- [ ] `finally:` `shutil.rmtree(sandbox, ignore_errors=True)`.
-- [ ] Ghi `out / "run.json"` (`json.dumps(record, indent=2, ensure_ascii=False)`, utf-8); `return record`.
-- [ ] `pytest tests/test_03_runner.py` → **6 passed** (12 điểm).
+- [x] Lấy `cfg = CONDITIONS[condition]`, `task = get_task(task_id)`, `skills_dir = ROOT / cfg["skills_dir"]` hoặc `None`.
+- [x] `out = Path(results_dir) / condition / task_id`; `mkdir(parents=True, exist_ok=True)`.
+- [x] `sandbox = Path(tempfile.mkdtemp())` – nằm NGOÀI repo.
+- [x] `record = {"task", "condition", "role": task.role, "error": None, "timestamp": datetime.now(timezone.utc).isoformat()}`.
+- [x] Trong `try:`
+  - [x] `prepare_sandbox(task, sandbox, skills_dir)`; `before = hash_dir(sandbox / "skills")`; `record["skills_sha256"] = before`.
+  - [x] `agent = build_agent(sandbox, mode=cfg["mode"], use_skills=skills_dir is not None, model=model)`.
+  - [x] `usage = UsageMetadataCallbackHandler()` (từ `langchain_core.callbacks`); `t0 = time.time()`.
+  - [x] `try: result = agent.invoke({"messages": [{"role": "user", "content": task.instruction}]}, config={"callbacks": [usage], "recursion_limit": recursion_limit})` → `messages = result["messages"]`, `final = messages[-1].text` (dùng `.text`: `gpt-6-luna` trả về danh sách block kèm reasoning mã hóa; bản sửa này chưa commit).
+  - [x] `except Exception as e:` → `record["error"] = f"{type(e).__name__}: {e}"`, `messages = []`, `final = ""` (không ném lỗi ra ngoài).
+  - [x] `record["seconds"] = round(time.time() - t0, 1)`.
+  - [x] `record["tokens"] = {"input", "output", "total"}` = tổng `input_tokens`/`output_tokens`/`total_tokens` trên `usage.usage_metadata.values()`.
+  - [x] `calls = [tc for m in messages if isinstance(m, AIMessage) for tc in m.tool_calls]`.
+  - [x] `tool_calls = len(calls)`; `subagent_calls` = số call `name == "task"`.
+  - [x] `skills_read` = số **tên skill khác nhau** từ các call `read_file` có `"skills/"` trong `args["file_path"]` (tên = phần ngay sau `skills/`, cắt tại `/`; dùng `set`).
+  - [x] `skills_modified = hash_dir(sandbox / "skills") != before`; `final_message = final`.
+  - [x] `g = grade(task, sandbox / "workspace")`; `record.update(score, passed, total, checks)` từ `g`.
+  - [x] Ghi `out / "trace.md"` = `render_trace(messages)` (encoding utf-8).
+- [x] `finally:` `shutil.rmtree(sandbox, ignore_errors=True)`.
+- [x] Ghi `out / "run.json"` (`json.dumps(record, indent=2, ensure_ascii=False)`, utf-8); `return record`.
+- [x] `pytest tests/test_03_runner.py` → **6 passed** (12 điểm).
 
 ### 1.4. Chạy thật lần đầu (tính vào kết quả baseline, không chạy lại)
 
-- [ ] `python -m lab.runner --condition baseline --tasks data-learn`
-- [ ] Có `results/baseline/data-learn/run.json` và `trace.md`; `tokens.total > 0`; `checks` có danh sách, check thất bại có `detail`.
-- [ ] Mở `trace.md` kiểm tra không có `python: command not found`, không có `/workspace/...` lỗi, không có khóa API.
-- [ ] Commit mã: `git add -A; git commit -m "Implement harness: agent, subagents, runner"`
+> ⚠️ Đã chạy (5/8, 33k token) nhưng chạy khi `tasks/` còn CRLF → phải chạy lại sau khi sửa 0.1.
+
+- [x] `python -m lab.runner --condition baseline --tasks data-learn`
+- [x] Có `results/baseline/data-learn/run.json` và `trace.md`; `tokens.total > 0`; `checks` có danh sách, check thất bại có `detail`.
+- [x] Mở `trace.md` kiểm tra không có `python: command not found`, không có `/workspace/...` lỗi, không có khóa API.
+- [x] Commit mã: `git add -A; git commit -m "Implement harness: agent, subagents, runner"` (đã commit `0c0234b`)
 
 ---
 
@@ -124,8 +147,10 @@ Làm theo thứ tự 1.1 → 1.2 → 1.3 (`build_agent` gọi `get_subagents`).
 
 ### 2.1. Chạy (CHỈ tác vụ học)
 
-- [ ] `python -m lab.runner --condition baseline --tasks code-learn logs-learn`
-- [ ] `python -m lab.runner --condition subagents --tasks learn`
+> ⚠️ Cả 6 lần đã chạy, không lỗi API, nhưng **không hợp lệ do CRLF** → chạy lại sau khi sửa 0.1. Số liệu tham khảo (lần chạy CRLF): baseline 6/10, 5/8, 6/9 (72.6k, 33.0k, 18.2k token); subagents 6/10, 5/8, 6/9 (171.0k, 106.6k, 62.3k token; `subagent_calls` = 3, 3, 1).
+
+- [x] `python -m lab.runner --condition baseline --tasks code-learn logs-learn`
+- [x] `python -m lab.runner --condition subagents --tasks learn`
 - [ ] Kiểm tra `results/baseline/` và `results/subagents/` đủ 3 tác vụ học, không có `error` do hạ tầng (nếu có: chạy lại đúng tác vụ đó, ghi chú trong báo cáo).
 - [ ] Ghi lại từng lệnh đã chạy vào **Phụ lục** báo cáo (rubric 6.4 – tái lập).
 
@@ -154,16 +179,16 @@ Làm theo thứ tự 1.1 → 1.2 → 1.3 (`build_agent` gọi `get_subagents`).
 
 ### 3.1. Cài `curate_skills` trong `src/lab/curator.py` (đọc `04_curator.md`, `05_skill_quality.md`)
 
-- [ ] `out_dir` mặc định `ROOT / "skills" / "auto"` (import `ROOT` từ `.tasks`).
-- [ ] Duyệt `Path(results_dir) / source_condition / "*" / "run.json"`; **bỏ qua mọi run có `role != "learn"`**.
-- [ ] Với mỗi run: đọc `trace.md` (nếu có), lấy ~6000 ký tự **cuối**; `failed = [(c["name"], c["detail"]) for c in checks if not c["passed"]]`.
-- [ ] Nếu không run nào có `failed` → in cảnh báo, `return []` và **không gọi model**.
-- [ ] Dựng prompt theo mẫu trong `04_curator.md`: max_skills, quy tắc tổng quát/không đáp án/không id tác vụ, khuôn `=== SKILL: <name> === ... === END ===`, rồi mỗi run: tên + `detail` từng check thất bại + vết.
-- [ ] `reply = (model or make_model()).invoke(prompt).content`.
-- [ ] Với mỗi `(name, text)` trong `parse_skill_blocks(reply)`: dừng khi đủ `max_skills`; bỏ qua nếu `validate_skill(text, expected_name=name)` có vấn đề; ngược lại ghi `out_dir / name / "SKILL.md"` (mkdir, utf-8, kết thúc bằng `\n`).
-- [ ] Trả về list đường dẫn đã ghi.
-- [ ] `pytest tests/test_04_curator.py` → **2 passed** (8 điểm).
-- [ ] `pytest` (toàn bộ) → tất cả đạt (12 + 9 + 6 + 2 = 29 test).
+- [x] `out_dir` mặc định `ROOT / "skills" / "auto"` (import `ROOT` từ `.tasks`).
+- [x] Duyệt `Path(results_dir) / source_condition / "*" / "run.json"`; **bỏ qua mọi run có `role != "learn"`**.
+- [x] Với mỗi run: đọc `trace.md` (nếu có), lấy ~6000 ký tự **cuối**; `failed = [(c["name"], c["detail"]) for c in checks if not c["passed"]]`.
+- [x] Nếu không run nào có `failed` → in cảnh báo, `return []` và **không gọi model**.
+- [x] Dựng prompt theo mẫu trong `04_curator.md`: max_skills, quy tắc tổng quát/không đáp án/không id tác vụ, khuôn `=== SKILL: <name> === ... === END ===`, rồi mỗi run: tên + `detail` từng check thất bại + vết.
+- [x] `reply = (model or make_model()).invoke(prompt).content`.
+- [x] Với mỗi `(name, text)` trong `parse_skill_blocks(reply)`: dừng khi đủ `max_skills`; bỏ qua nếu `validate_skill(text, expected_name=name)` có vấn đề; ngược lại ghi `out_dir / name / "SKILL.md"` (mkdir, utf-8, kết thúc bằng `\n`).
+- [x] Trả về list đường dẫn đã ghi.
+- [x] `pytest tests/test_04_curator.py` → **2 passed** (8 điểm).
+- [x] `pytest` (toàn bộ) → tất cả đạt (12 + 9 + 6 + 2 = 29 test).
 
 ### 3.2. Chạy curator
 
@@ -256,6 +281,8 @@ Với **mỗi** skill trong `skills/auto/`, điền một dòng bảng:
 
 ## Phần 6. Thử thách mở rộng (tùy chọn, +5) – chọn MỘT
 
+> Chưa làm. Chỉ được tính điểm khi Phần 0–5 đã hoàn thành.
+
 - [ ] Chỉ làm khi Phần 0–5 đã xong.
 - [ ] Gợi ý dễ nhất: **6e – lặp đo nhiễu**: chạy lại mỗi điều kiện trên eval ≥ 2 lần với `--results results-rep1`, `--results results-rep2`; báo cáo trung bình và khoảng dao động.
 - [ ] Hoặc **6d – subagent có skill**: thêm `"skills": ["/skills/"]` cho subagent (thư mục kết quả riêng, không phá kết quả chính).
@@ -271,7 +298,7 @@ Với **mỗi** skill trong `skills/auto/`, điền một dòng bảng:
 - [ ] `git diff freeze -- skills/` rỗng.
 - [ ] `git status` sạch; `.env` không có trong lịch sử: `git log --all -- .env` rỗng.
 - [ ] Tìm khóa API bị lộ: `git grep -n -i "api_key\|sk-" -- results report` không ra khóa thật.
-- [ ] `git diff c77a976 --stat -- tests tasks scripts src/lab/model.py src/lab/tasks.py src/lab/grading.py src/lab/testing.py src/lab/compare.py` rỗng.
+- [x] `git diff d982034 --stat -- tests tasks scripts src/lab/model.py src/lab/tasks.py src/lab/grading.py src/lab/testing.py src/lab/compare.py` rỗng (so với `d982034` – commit gốc mới nhất của giảng viên; đã kiểm tra: rỗng).
 - [ ] Nộp đủ: 4 file `src/lab/{agent,subagents,runner,curator}.py`, `skills/auto/`, `results/` (run.json + trace.md), `report/REPORT.md`, `report/table.md`.
 - [ ] `git push` (kèm tag): `git push; git push origin freeze`
 
