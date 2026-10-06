@@ -20,6 +20,11 @@ Find the general PROCESS mistakes and conventions behind the failures (not the s
 Rules:
 - Skills must be general: never mention a task id, a file name that belongs to one task's data, or an answer or number.
   Output file names, keys and headings REQUIRED by a convention stated in the feedback are allowed, because they are the rule itself.
+- A feedback line starting with "RULE:" is an organisation convention that the task instructions NEVER state; the agent
+  can only learn it from your skill. Write every such convention as an UNCONDITIONAL imperative ("Always ...", never
+  "when specified" or "if required") and copy its exact output file names, keys, headers, constant values and formats.
+- Describe the data with generic nouns (record, row, entity, item, amount) instead of the domain nouns of one dataset,
+  so that the skill transfers to other datasets.
 - Each skill has a YAML frontmatter with `name` (lower case, words joined by hyphens) and `description`
   (one sentence that starts with "Use when" and names the broad kind of task that triggers it),
   then at most 40 lines of imperative instructions (a numbered checklist works well), ending with a short self-check list.
